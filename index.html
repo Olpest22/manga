@@ -4,138 +4,212 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
 <title>Манга</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#000;
-    --panel:rgba(20,20,22,.94);
+    --panel:rgba(18,18,20,.88);
     --panel-solid:#141416;
     --fg:#ecebe8;
     --dim:#8d8d93;
     --line:#26262a;
     --accent:#f2c14e;
+    --ease:cubic-bezier(.2,.7,.2,1);
     --safe-t:env(safe-area-inset-top,0px);
     --safe-b:env(safe-area-inset-bottom,0px);
+    --safe-l:env(safe-area-inset-left,0px);
+    --safe-r:env(safe-area-inset-right,0px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
-  body{font-family:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.5;}
+  html{height:100%;overflow-anchor:none;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    margin:0;min-height:100%;background:var(--bg);color:var(--fg);
+    font:16px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
   a{color:inherit;}
   button{font:inherit;color:inherit;}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-  [hidden]{display:none !important;}
+  .view{animation:fade .2s ease-out;}
+  @keyframes fade{from{opacity:0}}
 
-  /* ---------- home ---------- */
-  .home{max-width:640px;margin:0 auto;padding:calc(2.5rem + var(--safe-t)) 1.25rem calc(3rem + var(--safe-b));}
-  .home h1{font-size:1.75rem;font-weight:600;margin:0 0 .25rem;letter-spacing:-.01em;}
-  .home .sub{color:var(--dim);margin:0 0 2rem;font-size:.95rem;}
+  /* ---------- главная ---------- */
+  .home{
+    max-width:640px;margin:0 auto;
+    padding:calc(2.5rem + var(--safe-t)) calc(1.25rem + var(--safe-r)) calc(3rem + var(--safe-b)) calc(1.25rem + var(--safe-l));
+  }
+  .home h1{font-size:clamp(1.5rem,5vw,2rem);font-weight:650;margin:0 0 .2rem;letter-spacing:-.01em;line-height:1.2;}
+  .home .sub{color:var(--dim);margin:0 0 1.75rem;font-size:.95rem;}
   .continue{
     display:flex;align-items:center;gap:1rem;text-decoration:none;
     background:var(--panel-solid);border:1px solid var(--line);border-radius:14px;
-    padding:1rem 1.1rem;margin-bottom:2rem;
+    padding:1rem 1.1rem;margin-bottom:2rem;transition:border-color .15s;
   }
-  .continue:hover{border-color:#3a3a40;}
   .continue .play{
     flex:none;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#1a1400;
     display:grid;place-items:center;
   }
   .continue .t{font-weight:600;}
   .continue .s{color:var(--dim);font-size:.88rem;}
-  ol.chapters{list-style:none;margin:0;padding:0;counter-reset:ch;}
+  ol.chapters{list-style:none;margin:0;padding:0;}
   ol.chapters li{border-top:1px solid var(--line);}
   ol.chapters li:last-child{border-bottom:1px solid var(--line);}
-  ol.chapters a{display:grid;grid-template-columns:2.2rem 1fr auto;align-items:center;gap:.25rem .75rem;padding:1rem .25rem;text-decoration:none;}
-  ol.chapters a:hover .ct{color:#fff;}
+  ol.chapters a{
+    display:grid;grid-template-columns:2.2rem 1fr auto;align-items:center;gap:.3rem .75rem;
+    padding:1rem .25rem;text-decoration:none;min-height:56px;
+  }
   ol.chapters .n{color:var(--dim);font-variant-numeric:tabular-nums;font-size:.9rem;}
-  ol.chapters .ct{font-weight:500;}
-  ol.chapters .cp{color:var(--dim);font-size:.85rem;font-variant-numeric:tabular-nums;}
+  ol.chapters .ct{font-weight:500;overflow-wrap:anywhere;}
+  ol.chapters .cp{color:var(--dim);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap;}
   ol.chapters .bar{grid-column:2 / 4;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
   ol.chapters .bar i{display:block;height:100%;background:var(--accent);}
+  @media (hover:hover){
+    .continue:hover{border-color:#44444a;}
+    ol.chapters a:hover .ct{color:#fff;}
+  }
   .empty{color:var(--dim);padding:4rem 1.5rem;text-align:center;line-height:1.7;max-width:480px;margin:0 auto;}
   .empty code{color:var(--fg);}
 
-  /* ---------- reader ---------- */
-  .reader{position:fixed;inset:0;background:var(--bg);overflow:hidden;}
+  /* ---------- читалка: панели ---------- */
   .bar{
     position:fixed;left:0;right:0;z-index:10;
-    background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    display:flex;align-items:center;gap:.5rem;
-    transition:transform .22s ease, opacity .22s ease;
+    background:var(--panel);
+    -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);
+    transition:transform .3s var(--ease),opacity .3s var(--ease);
+    will-change:transform;
   }
-  .bar.top{top:0;padding:calc(.5rem + var(--safe-t)) .5rem .5rem;border-bottom:1px solid var(--line);}
-  .bar.bottom{bottom:0;padding:.6rem .75rem calc(.6rem + var(--safe-b));border-top:1px solid var(--line);}
+  .bar .in{display:flex;align-items:center;gap:.25rem;width:100%;max-width:1100px;margin:0 auto;}
+  .bar.top{top:0;padding:calc(.35rem + var(--safe-t)) calc(.35rem + var(--safe-r)) .35rem calc(.35rem + var(--safe-l));border-bottom:1px solid var(--line);}
+  .bar.bottom{bottom:0;padding:.4rem calc(.5rem + var(--safe-r)) calc(.4rem + var(--safe-b)) calc(.5rem + var(--safe-l));border-top:1px solid var(--line);}
   .ui-hidden .bar.top{transform:translateY(-100%);opacity:0;pointer-events:none;}
   .ui-hidden .bar.bottom{transform:translateY(100%);opacity:0;pointer-events:none;}
 
   .icon-btn{
     flex:none;width:44px;height:44px;border-radius:10px;border:0;background:none;cursor:pointer;
     display:grid;place-items:center;text-decoration:none;color:var(--fg);
+    transition:background-color .15s;touch-action:manipulation;
   }
-  .icon-btn:hover{background:rgba(255,255,255,.07);}
-  .icon-btn:disabled{opacity:.3;cursor:default;background:none;}
+  .icon-btn:active{background:rgba(255,255,255,.12);}
+  @media (hover:hover){ .icon-btn:hover{background:rgba(255,255,255,.08);} }
   .icon-btn svg{width:22px;height:22px;}
-  .where{flex:1;min-width:0;text-align:center;line-height:1.25;}
+  .where{flex:1;min-width:0;text-align:center;line-height:1.25;padding:0 .25rem;}
   .where .ch{font-weight:600;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .where .pg{color:var(--dim);font-size:.8rem;font-variant-numeric:tabular-nums;}
+  input[type=range]{flex:1;min-width:0;margin:0 .5rem;accent-color:var(--accent);height:32px;cursor:pointer;touch-action:none;}
 
-  input[type=range]{flex:1;min-width:0;accent-color:var(--accent);height:28px;cursor:pointer;}
-
-  .stage{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
-
-  /* page mode */
-  .page-wrap{min-height:100%;display:flex;align-items:center;justify-content:center;}
-  .page-wrap img{display:block;user-select:none;-webkit-user-drag:none;transition:opacity .15s;}
-  .fit-contain .page-wrap img{max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain;}
-  .fit-width .page-wrap{align-items:flex-start;}
-  .fit-width .page-wrap img{width:100%;max-width:900px;height:auto;}
-  .page-wrap.loading img{opacity:.25;}
-  .spinner{position:fixed;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
-    border:3px solid rgba(255,255,255,.15);border-top-color:var(--fg);animation:spin .8s linear infinite;z-index:2;pointer-events:none;}
+  .spinner{
+    position:fixed;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
+    border:3px solid rgba(255,255,255,.15);border-top-color:var(--fg);
+    animation:spin .8s linear infinite paused;
+    opacity:0;transition:opacity .15s;pointer-events:none;z-index:4;
+  }
+  .busy .spinner{opacity:1;transition-delay:.25s;animation-play-state:running;}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* strip mode */
-  .strip{max-width:900px;margin:0 auto;padding:calc(60px + var(--safe-t)) 0 calc(80px + var(--safe-b));}
-  .strip img{display:block;width:100%;height:auto;background:#0d0d0e;}
-  .strip img:not(.ok){aspect-ratio:2/3;}
-  .chapter-end{text-align:center;padding:3rem 1.25rem;color:var(--dim);}
+  /* ---------- по страницам ---------- */
+  .pager{
+    position:relative;overflow:hidden;
+    min-height:100vh;min-height:100svh;
+    display:flex;align-items:center;justify-content:center;
+    touch-action:pan-y pinch-zoom;
+    animation:fade .2s ease-out;
+  }
+  .zoomed .pager{touch-action:auto;}
+  .pager img.page{
+    display:block;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    will-change:transform,opacity;
+  }
+  .fit-contain .pager img.page{max-width:100%;max-height:100vh;max-height:100svh;width:auto;height:auto;}
+  .fit-width .pager{align-items:flex-start;align-items:safe center;}
+  .fit-width .pager img.page{width:100%;max-width:1000px;height:auto;}
+  @media (hover:hover) and (pointer:fine){ .mode-page .pager{cursor:pointer;} }
+
+  .edge{
+    position:fixed;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;
+    background:var(--panel);display:grid;place-items:center;
+    opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;
+  }
+  .edge svg{width:24px;height:24px;}
+  .edge.l{left:calc(20px + var(--safe-l));}
+  .edge.r{right:calc(20px + var(--safe-r));}
+  .hover-l .edge.l,.hover-r .edge.r{opacity:.9;}
+
+  .img-error{color:var(--dim);text-align:center;padding:3rem 1rem;align-self:center;}
+
+  /* ---------- лентой ---------- */
+  .strip{
+    width:100%;max-width:900px;margin:0 auto;
+    padding:calc(54px + var(--safe-t)) 0 calc(64px + var(--safe-b));
+    animation:fade .2s ease-out;touch-action:manipulation;
+  }
+  .strip .pg{margin:0;position:relative;aspect-ratio:var(--ar,.7);background:#0c0c0d;}
+  .strip .pg::before{
+    content:attr(data-n);position:absolute;inset:0;display:grid;place-items:center;
+    color:#3a3a3f;font-size:.9rem;font-variant-numeric:tabular-nums;
+  }
+  .strip .pg img{display:block;width:100%;height:100%;opacity:0;transition:opacity .25s ease-out;}
+  .strip .pg.ok{aspect-ratio:auto;background:none;}
+  .strip .pg.ok::before{content:none;}
+  .strip .pg.ok img{height:auto;opacity:1;}
+  .strip .pg.err img{visibility:hidden;}
+  .pg-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;color:var(--dim);z-index:1;background:#0c0c0d;}
+  .chapter-end{text-align:center;padding:3rem 1.25rem 2rem;color:var(--dim);}
+
   .btn{
-    display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;
-    padding:.8rem 1.3rem;border-radius:12px;border:0;cursor:pointer;text-decoration:none;
-    background:var(--accent);color:#1a1400;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1rem;min-height:44px;
+    padding:.7rem 1.3rem;border-radius:12px;border:0;cursor:pointer;text-decoration:none;
+    background:var(--accent);color:#1a1400;font-weight:600;touch-action:manipulation;
   }
   .btn.ghost{background:none;color:var(--fg);border:1px solid var(--line);}
 
-  .img-error{color:var(--dim);text-align:center;padding:3rem 1rem;}
-
-  /* settings sheet */
-  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;}
-  .sheet{
-    position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:21;
-    width:min(480px,100%);background:var(--panel-solid);border:1px solid var(--line);border-bottom:0;
-    border-radius:18px 18px 0 0;padding:1.25rem 1.25rem calc(1.5rem + var(--safe-b));
+  /* ---------- настройки ---------- */
+  .scrim{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;
+    opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s;
   }
-  .sheet h2{font-size:1rem;font-weight:600;margin:0 0 1rem;}
+  .sheet{
+    position:fixed;left:50%;bottom:0;z-index:21;
+    width:min(480px,100%);max-height:90vh;overflow:auto;overscroll-behavior:contain;
+    background:var(--panel-solid);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;
+    padding:1.25rem calc(1.25rem + var(--safe-r)) calc(1.25rem + var(--safe-b)) calc(1.25rem + var(--safe-l));
+    transform:translate(-50%,100%);visibility:hidden;
+    transition:transform .32s var(--ease),visibility 0s .32s;
+  }
+  .sheet-open .scrim{opacity:1;visibility:visible;transition:opacity .25s;}
+  .sheet-open .sheet{transform:translate(-50%,0);visibility:visible;transition:transform .32s var(--ease);}
+  @media (min-width:700px) and (min-height:500px){
+    .sheet{
+      top:50%;bottom:auto;border-radius:18px;border-bottom:1px solid var(--line);
+      transform:translate(-50%,-47%);opacity:0;
+      transition:transform .22s var(--ease),opacity .22s,visibility 0s .22s;
+    }
+    .sheet-open .sheet{transform:translate(-50%,-50%);opacity:1;transition:transform .22s var(--ease),opacity .22s;}
+  }
+  .sheet h2{font-size:1.05rem;font-weight:600;margin:0 0 1rem;}
   .opt{margin-bottom:1.1rem;}
   .opt .lbl{color:var(--dim);font-size:.85rem;margin-bottom:.4rem;}
   .seg{display:flex;background:#0b0b0c;border:1px solid var(--line);border-radius:11px;padding:3px;}
-  .seg button{flex:1;border:0;background:none;padding:.6rem .4rem;border-radius:8px;cursor:pointer;font-size:.9rem;color:var(--dim);}
-  .seg button[aria-pressed="true"]{background:#2a2a2f;color:var(--fg);}
-  .hint{color:var(--dim);font-size:.8rem;line-height:1.6;margin-top:.5rem;}
+  .seg button{
+    flex:1;border:0;background:none;padding:.65rem .4rem;border-radius:8px;cursor:pointer;
+    font-size:.9rem;color:var(--dim);min-height:44px;transition:background-color .15s,color .15s;touch-action:manipulation;
+  }
+  .seg button[aria-pressed="true"]{background:#2c2c31;color:var(--fg);}
+  .hint{color:var(--dim);font-size:.82rem;line-height:1.6;margin:.25rem 0 0;}
+  @media (pointer:coarse){ .hint .keys{display:none;} }
   kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:0 .3rem;font-size:.75rem;}
+  .sheet .btn{width:100%;}
 
   .toast{
-    position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:30;
+    position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:30;
     background:var(--panel-solid);border:1px solid var(--line);padding:.7rem 1.1rem;border-radius:12px;
-    font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;
+    font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;
   }
   .toast.show{opacity:1;}
 
   @media (prefers-reduced-motion: reduce){
-    .bar,.toast,.page-wrap img{transition:none;}
-    .spinner{animation-duration:2s;}
+    *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;transition-delay:0s !important;}
+    .busy .spinner{animation-duration:1.6s !important;}
   }
 </style>
 </head>
@@ -145,32 +219,50 @@
 <script>
 const MANIFEST_URL = 'manga/manifest.json';
 
-/* ---------- storage ---------- */
+if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const EASE = 'cubic-bezier(.2,.7,.2,1)';
+
+/* ---------- хранилище ---------- */
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
 };
 const settings = Object.assign({mode:'page', fit:'contain', dir:'ltr'}, store.get('reader-settings', {}));
+if(!['page','strip'].includes(settings.mode)) settings.mode = 'page';
+if(!['contain','width'].includes(settings.fit)) settings.fit = 'contain';
+if(!['ltr','rtl'].includes(settings.dir)) settings.dir = 'ltr';
 const saveSettings = () => store.set('reader-settings', settings);
-const progress = store.get('reader-progress', {});        // {chapterId: pageIdx}
-function saveProgress(chId, idx){
-  progress[chId] = idx;
-  progress[chId + ':max'] = Math.max(idx, progress[chId + ':max'] ?? -1);
-  store.set('reader-progress', progress);
-  store.set('reader-last', {chapter: chId, page: idx});
+
+const progress = (() => {
+  const p = store.get('reader-progress-v2', null);
+  if(p && typeof p === 'object') return p;
+  const out = {}, old = store.get('reader-progress', {});   // перенос из прошлой версии
+  for(const k in old){
+    if(k.endsWith(':max') || typeof old[k] !== 'number') continue;
+    out[k] = {last: old[k], max: typeof old[k + ':max'] === 'number' ? old[k + ':max'] : old[k]};
+  }
+  return out;
+})();
+function saveProgress(id, i){
+  const e = progress[id] || (progress[id] = {last:0, max:-1});
+  e.last = i; e.max = Math.max(e.max, i);
+  store.set('reader-progress-v2', progress);
+  store.set('reader-last', {chapter:id, page:i});
 }
 
-/* ---------- icons ---------- */
+/* ---------- иконки ---------- */
 const I = {
-  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
-  next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
-  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
-  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
-  play:'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>',
-  full:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+  next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+  play:'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  full:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'
 };
 
-/* ---------- helpers ---------- */
+/* ---------- помощники ---------- */
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -180,16 +272,32 @@ function plural(n, one, few, many){
   if(m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
 }
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const pageSrc = (ch, i) => `manga/${encodeURIComponent(ch.id)}/${encodeURIComponent(ch.pages[i])}`;
 const readHash = (id, i) => `#read/${encodeURIComponent(id)}/${i}`;
 
 function getRoute(){
-  const h = location.hash.slice(1);
-  const parts = h.split('/');
+  const parts = location.hash.slice(1).split('/');
   if(parts[0] === 'read' && parts[1]){
-    return {view:'read', chapter: decodeURIComponent(parts[1]), page: parseInt(parts[2] || '0', 10) || 0};
+    let id = parts[1];
+    try{ id = decodeURIComponent(id); }catch{}
+    return {view:'read', chapter:id, page: parseInt(parts[2] || '0', 10) || 0};
   }
   return {view:'list'};
+}
+
+// Загружает и декодирует картинку заранее, чтобы показ был без мигания
+function loadImg(src){
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.onload = () => {
+      const d = im.decode ? im.decode().catch(() => {}) : Promise.resolve();
+      d.then(() => resolve(im));
+    };
+    im.onerror = () => reject(new Error('image failed'));
+    im.src = src;
+  });
 }
 
 let toastTimer;
@@ -198,38 +306,50 @@ function toast(msg){
   if(!t) return;
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1500);
+}
+function toggleFull(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.().catch(() => {});
 }
 
-/* ---------- state ---------- */
+/* ---------- состояние ---------- */
 let manifest = null;
-let R = null; // current reader state
+let R = null;            // текущая открытая глава
+let readerCtrl = null;   // снимает все обработчики читалки
+let modeCtrl = null;     // снимает обработчики текущего режима
 
-/* ---------- home ---------- */
+function teardown(){
+  readerCtrl?.abort(); modeCtrl?.abort();
+  readerCtrl = modeCtrl = null; R = null;
+}
+
+/* ---------- список глав ---------- */
 function renderList(app){
-  R = null;
-  window.onkeydown = null;
+  teardown();
   const chapters = manifest.chapters || [];
   document.title = manifest.title || 'Манга';
 
   const last = store.get('reader-last', null);
   const lastCh = last && chapters.find(c => c.id === last.chapter);
+  const lastPage = lastCh ? clamp(last.page | 0, 0, lastCh.pages.length - 1) : 0;
   const cont = lastCh ? `
-    <a class="continue" href="${readHash(lastCh.id, last.page)}">
+    <a class="continue" href="${readHash(lastCh.id, lastPage)}">
       <span class="play">${I.play}</span>
-      <span><div class="t">Продолжить чтение</div>
-      <div class="s">${escapeHtml(lastCh.title || lastCh.id)}, страница ${last.page + 1} из ${lastCh.pages.length}</div></span>
+      <span><span class="t">Продолжить чтение</span><br>
+      <span class="s">${escapeHtml(lastCh.title || lastCh.id)}, страница ${lastPage + 1} из ${lastCh.pages.length}</span></span>
     </a>` : '';
 
   const list = chapters.length === 0
     ? `<div class="empty">Глав пока нет. Добавь папку с картинками в <code>manga/</code> и запиши главу в <code>manga/manifest.json</code>.</div>`
     : `<ol class="chapters">` + chapters.map((ch, i) => {
         const total = (ch.pages || []).length;
-        const max = progress[ch.id + ':max'];
-        const read = max != null ? max + 1 : 0;
+        const p = progress[ch.id];
+        const read = p ? Math.min(p.max + 1, total) : 0;
         const pct = total ? Math.round(read / total * 100) : 0;
         const status = read === 0 ? `${total} стр.` : read >= total ? 'Прочитано' : `${read} из ${total}`;
-        return `<li><a href="${readHash(ch.id, read > 0 && read < total ? read - 1 : 0)}">
+        const start = p && read < total ? clamp(p.last, 0, total - 1) : 0;
+        return `<li><a href="${readHash(ch.id, start)}">
           <span class="n">${i + 1}</span>
           <span class="ct">${escapeHtml(ch.title || ch.id)}</span>
           <span class="cp">${status}</span>
@@ -238,269 +358,483 @@ function renderList(app){
       }).join('') + `</ol>`;
 
   app.innerHTML = `
-    <div class="home">
+    <div class="home view">
       <h1>${escapeHtml(manifest.title || 'Манга')}</h1>
       <p class="sub">${chapters.length} ${plural(chapters.length, 'глава', 'главы', 'глав')}</p>
       ${cont}
       ${list}
     </div>`;
+  window.scrollTo(0, 0);
 }
 
-/* ---------- reader ---------- */
+/* ---------- читалка ---------- */
 function renderReader(app, chapterId, pageIdx){
   const chapters = manifest.chapters || [];
   const chIndex = chapters.findIndex(c => c.id === chapterId);
   const ch = chapters[chIndex];
-  if(!ch){
-    app.innerHTML = `<div class="empty">Глава «${escapeHtml(chapterId)}» не найдена в manifest.json.<br><a class="btn ghost" href="#">К списку глав</a></div>`;
+  if(!ch || !(ch.pages || []).length){
+    teardown();
+    app.innerHTML = `<div class="empty view">${ch ? 'В этой главе нет страниц.' : `Глава «${escapeHtml(chapterId)}» не найдена в manifest.json.`}<br><a class="btn ghost" href="#">К списку глав</a></div>`;
     return;
   }
   const total = ch.pages.length;
-  pageIdx = Math.max(0, Math.min(pageIdx, total - 1));
+  pageIdx = clamp(pageIdx, 0, total - 1);
 
-  // same chapter & mode already open → just move page
-  if(R && R.ch === ch && R.mode === settings.mode && document.getElementById('reader')){
-    R.show(pageIdx, true);
-    return;
-  }
+  // та же глава уже открыта — просто переходим на страницу
+  if(R && R.ch === ch){ if(pageIdx !== R.idx) R.goto(pageIdx); return; }
 
-  document.title = `${ch.title || ch.id} — ${manifest.title || 'Манга'}`;
-  const prevCh = chapters[chIndex - 1], nextCh = chapters[chIndex + 1];
+  teardown();
+  readerCtrl = new AbortController();
+  const signal = readerCtrl.signal;
+  document.title = `${ch.title || ch.id} · ${manifest.title || 'Манга'}`;
 
+  const canFull = !!document.documentElement.requestFullscreen;
   app.innerHTML = `
-    <div class="reader fit-${settings.fit}" id="reader">
-      <div class="stage" id="stage"></div>
-      <header class="bar top">
+    <div class="reader view fit-${settings.fit}" id="reader">
+      <div id="stage"></div>
+      <header class="bar top" id="topBar"><div class="in">
         <a class="icon-btn" href="#" aria-label="К списку глав">${I.list}</a>
         <div class="where">
           <div class="ch">${escapeHtml(ch.title || ch.id)}</div>
           <div class="pg" id="pgLabel"></div>
         </div>
-        <button class="icon-btn" id="fullBtn" aria-label="Полноэкранный режим">${I.full}</button>
-        <button class="icon-btn" id="setBtn" aria-label="Настройки чтения">${I.gear}</button>
-      </header>
-      <footer class="bar bottom">
-        <button class="icon-btn" id="leftBtn"></button>
+        ${canFull ? `<button class="icon-btn" id="fullBtn" type="button" aria-label="Во весь экран">${I.full}</button>` : ''}
+        <button class="icon-btn" id="setBtn" type="button" aria-label="Настройки чтения">${I.gear}</button>
+      </div></header>
+      <footer class="bar bottom"><div class="in">
+        <button class="icon-btn" id="leftBtn" type="button">${I.back}</button>
         <input type="range" id="slider" min="1" max="${total}" value="${pageIdx + 1}" aria-label="Страница">
-        <button class="icon-btn" id="rightBtn"></button>
-      </footer>
-      <div class="scrim" id="scrim" hidden></div>
-      <div class="sheet" id="sheet" hidden role="dialog" aria-label="Настройки чтения">
+        <button class="icon-btn" id="rightBtn" type="button">${I.next}</button>
+      </div></footer>
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Настройки чтения">
         <h2>Настройки чтения</h2>
         <div class="opt"><div class="lbl">Режим</div>
           <div class="seg" data-key="mode">
-            <button data-v="page">По страницам</button><button data-v="strip">Лентой</button>
+            <button type="button" data-v="page">По страницам</button><button type="button" data-v="strip">Лентой</button>
           </div></div>
         <div class="opt" data-only="page"><div class="lbl">Размер страницы</div>
           <div class="seg" data-key="fit">
-            <button data-v="contain">Целиком на экране</button><button data-v="width">По ширине</button>
+            <button type="button" data-v="contain">Целиком</button><button type="button" data-v="width">По ширине</button>
           </div></div>
         <div class="opt" data-only="page"><div class="lbl">Листать</div>
           <div class="seg" data-key="dir">
-            <button data-v="ltr">Слева направо</button><button data-v="rtl">Справа налево</button>
+            <button type="button" data-v="ltr">Слева направо</button><button type="button" data-v="rtl">Справа налево</button>
           </div></div>
-        <div class="hint">Касание по краю страницы листает, по центру прячет панели. Клавиши: <kbd>←</kbd> <kbd>→</kbd>, <kbd>Пробел</kbd>, <kbd>F</kbd> — полный экран.</div>
+        <p class="hint" id="hint"></p>
+        <button class="btn" type="button" id="doneBtn">Готово</button>
       </div>
-      <div class="toast" id="toast" role="status"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
     </div>`;
 
-  const reader = document.getElementById('reader');
-  const stage = document.getElementById('stage');
-  const slider = document.getElementById('slider');
-  const pgLabel = document.getElementById('pgLabel');
-  const leftBtn = document.getElementById('leftBtn');
-  const rightBtn = document.getElementById('rightBtn');
-  const rtl = settings.mode === 'page' && settings.dir === 'rtl';
+  const $ = id => document.getElementById(id);
+  const reader = $('reader'), stage = $('stage'), slider = $('slider'), pgLabel = $('pgLabel');
+  const leftBtn = $('leftBtn'), rightBtn = $('rightBtn'), topBar = $('topBar'), sheet = $('sheet');
 
-  slider.style.direction = rtl ? 'rtl' : 'ltr';
-  leftBtn.innerHTML = I.back; rightBtn.innerHTML = I.next;
-  leftBtn.setAttribute('aria-label', rtl ? 'Следующая страница' : 'Предыдущая страница');
-  rightBtn.setAttribute('aria-label', rtl ? 'Предыдущая страница' : 'Следующая страница');
+  R = {
+    ch, total, idx: pageIdx,
+    prevCh: chapters[chIndex - 1], nextCh: chapters[chIndex + 1],
+    goto(){}, onLeft(){}, onRight(){}, onKey(){}, onHover: null, onResize: null
+  };
+  const rtl = () => settings.mode === 'page' && settings.dir === 'rtl';
 
-  const toggleUI = (force) => reader.classList.toggle('ui-hidden', force);
-  const setHash = (i) => history.replaceState(null, '', readHash(ch.id, i));
+  /* панели */
+  let pinned = false;
+  const uiHidden = () => reader.classList.contains('ui-hidden');
+  const sheetOpen = () => reader.classList.contains('sheet-open');
+  const showUI = (pin) => { reader.classList.remove('ui-hidden'); if(pin) pinned = true; };
+  const hideUI = () => { if(sheetOpen()) return; reader.classList.add('ui-hidden'); pinned = false; };
+  const toggleUI = () => uiHidden() ? showUI(true) : hideUI();
 
-  function updateChrome(i){
+  /* номер страницы */
+  let sliding = false;
+  function setPage(i){
+    R.idx = i;
+    history.replaceState(null, '', readHash(ch.id, i));
     pgLabel.textContent = `${i + 1} из ${total}`;
-    slider.value = i + 1;
+    if(!sliding) slider.value = i + 1;
     saveProgress(ch.id, i);
   }
-
-  function next(){
-    if(R.idx < total - 1) R.show(R.idx + 1);
-    else if(nextCh) location.hash = readHash(nextCh.id, 0);
-    else toast('Это последняя страница');
+  function toChapter(step){
+    const target = step > 0 ? R.nextCh : R.prevCh;
+    if(!target){ toast(step > 0 ? 'Это последняя страница' : 'Это первая страница'); return; }
+    location.hash = readHash(target.id, step > 0 ? 0 : target.pages.length - 1);
   }
-  function prev(){
-    if(R.idx > 0) R.show(R.idx - 1);
-    else if(prevCh) location.hash = readHash(prevCh.id, prevCh.pages.length - 1);
-    else toast('Это первая страница');
+  function applyDir(){
+    slider.style.direction = rtl() ? 'rtl' : 'ltr';
+    leftBtn.setAttribute('aria-label', rtl() ? 'Следующая страница' : 'Предыдущая страница');
+    rightBtn.setAttribute('aria-label', rtl() ? 'Предыдущая страница' : 'Следующая страница');
   }
 
-  R = {ch, mode: settings.mode, idx: pageIdx, next, prev, show: null};
+  slider.addEventListener('input', () => { sliding = true; pgLabel.textContent = `${slider.value} из ${total}`; }, {signal});
+  slider.addEventListener('change', () => { sliding = false; R.goto(+slider.value - 1); }, {signal});
+  leftBtn.addEventListener('click', () => R.onLeft(true), {signal});
+  rightBtn.addEventListener('click', () => R.onRight(true), {signal});
+  $('fullBtn')?.addEventListener('click', toggleFull, {signal});
 
-  /* ----- page mode ----- */
-  if(settings.mode === 'page'){
-    stage.innerHTML = `<div class="page-wrap" id="wrap"><img id="pageImg" alt=""></div><div class="spinner" id="spin" hidden></div>`;
-    const img = document.getElementById('pageImg');
-    const wrap = document.getElementById('wrap');
-    const spin = document.getElementById('spin');
-    let spinTimer;
-
-    R.show = (i) => {
-      R.idx = i;
-      wrap.classList.add('loading');
-      clearTimeout(spinTimer);
-      spinTimer = setTimeout(() => spin.hidden = false, 250);
-      img.alt = `Страница ${i + 1}`;
-      img.src = pageSrc(ch, i);
-      stage.scrollTop = 0;
-      setHash(i);
-      updateChrome(i);
-      // preload next pages
-      for(let k = 1; k <= 2; k++) if(i + k < total) new Image().src = pageSrc(ch, i + k);
-    };
-    img.onload = () => { clearTimeout(spinTimer); spin.hidden = true; wrap.classList.remove('loading'); };
-    img.onerror = () => {
-      clearTimeout(spinTimer); spin.hidden = true; wrap.classList.remove('loading');
-      toast(`Страница ${R.idx + 1} не загрузилась`);
-    };
-
-    // tap zones
-    let swiped = false;
-    stage.addEventListener('click', (e) => {
-      if(swiped){ swiped = false; return; }
-      const x = e.clientX / window.innerWidth;
-      if(x < 0.3) rtl ? next() : prev();
-      else if(x > 0.7) rtl ? prev() : next();
-      else toggleUI();
+  /* настройки */
+  function openSheet(open){
+    reader.classList.toggle('sheet-open', open);
+    if(open){ showUI(); sheet.querySelector('[aria-pressed="true"]')?.focus({preventScroll:true}); }
+  }
+  function syncSheet(){
+    sheet.querySelectorAll('.seg').forEach(seg => {
+      seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(settings[seg.dataset.key] === b.dataset.v)));
     });
+    sheet.querySelectorAll('[data-only]').forEach(el => el.hidden = settings.mode !== el.dataset.only);
+    $('hint').innerHTML = settings.mode === 'page'
+      ? 'Касание края страницы листает, касание центра показывает или прячет панели. Свайпы тоже работают.<span class="keys"> Клавиши: <kbd>←</kbd> <kbd>→</kbd>, <kbd>Пробел</kbd>, <kbd>F</kbd> — во весь экран.</span>'
+      : 'Листай вниз. Касание страницы показывает или прячет панели.<span class="keys"> Клавиши <kbd>←</kbd> <kbd>→</kbd> переходят к соседней странице, <kbd>F</kbd> — во весь экран.</span>';
+  }
+  $('setBtn').addEventListener('click', () => openSheet(true), {signal});
+  $('scrim').addEventListener('click', () => openSheet(false), {signal});
+  $('doneBtn').addEventListener('click', () => openSheet(false), {signal});
+  sheet.addEventListener('click', e => {
+    const b = e.target.closest('.seg button');
+    if(!b) return;
+    const key = b.parentNode.dataset.key, v = b.dataset.v;
+    if(settings[key] === v) return;
+    settings[key] = v; saveSettings();
+    if(key === 'mode') mount(v);
+    else if(key === 'fit'){
+      reader.classList.remove('fit-contain', 'fit-width');
+      reader.classList.add('fit-' + v);
+      window.scrollTo(0, 0);
+    }
+    else if(key === 'dir') applyDir();
+    syncSheet();
+  }, {signal});
+  syncSheet();
 
-    // swipe
-    let t0 = null;
-    stage.addEventListener('touchstart', (e) => {
-      t0 = e.touches.length === 1 ? {x:e.touches[0].clientX, y:e.touches[0].clientY} : null;
-    }, {passive:true});
-    stage.addEventListener('touchend', (e) => {
-      if(!t0) return;
-      if(window.visualViewport && window.visualViewport.scale > 1.05){ t0 = null; return; }
-      const dx = e.changedTouches[0].clientX - t0.x;
-      const dy = e.changedTouches[0].clientY - t0.y;
-      t0 = null;
-      if(Math.abs(dx) > 60 && Math.abs(dy) < 60){
-        swiped = true;
-        const forward = rtl ? dx > 0 : dx < 0;
-        forward ? next() : prev();
-      }
-    });
+  /* клавиатура */
+  window.addEventListener('keydown', e => {
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(sheetOpen()){ if(e.key === 'Escape') openSheet(false); return; }
+    if(e.target instanceof Element && e.target.closest('input, textarea, select')) return;
+    const k = e.key;
+    if((k === ' ' || k === 'Enter') && e.target instanceof Element && e.target.closest('button, a')) return;
+    if(k === 'f' || k === 'F' || k === 'а' || k === 'А'){ if(canFull) toggleFull(); return; }
+    if(k === 'Escape'){ if(!document.fullscreenElement) location.hash = '#'; return; }
+    R.onKey(e);
+  }, {signal});
 
-    leftBtn.onclick = () => rtl ? next() : prev();
-    rightBtn.onclick = () => rtl ? prev() : next();
-    R.show(pageIdx);
-    setTimeout(() => { if(R && R.ch === ch) toggleUI(true); }, 1800);
+  /* мышь: панели появляются, когда курсор у верхнего или нижнего края */
+  if(finePointer){
+    let hoverTimer, overBar = false;
+    const scheduleHide = () => {
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(function tick(){
+        if(overBar || sheetOpen()){ hoverTimer = setTimeout(tick, 800); return; }
+        if(!pinned) hideUI();
+      }, 1600);
+    };
+    window.addEventListener('mousemove', e => {
+      overBar = !!(e.target instanceof Element && e.target.closest('.bar'));
+      if(overBar || e.clientY < 64 || e.clientY > innerHeight - 64){ showUI(); scheduleHide(); }
+      R.onHover?.(e, overBar);
+    }, {signal, passive:true});
+    document.documentElement.addEventListener('mouseleave', () => reader.classList.remove('hover-l', 'hover-r'), {signal});
+    signal.addEventListener('abort', () => clearTimeout(hoverTimer));
   }
 
-  /* ----- strip mode ----- */
-  else {
-    const end = nextCh
-      ? `<div class="chapter-end">Конец главы «${escapeHtml(ch.title || ch.id)}»<br><a class="btn" href="${readHash(nextCh.id, 0)}">Читать «${escapeHtml(nextCh.title || nextCh.id)}»</a></div>`
-      : `<div class="chapter-end">Это последняя глава.<br><a class="btn ghost" href="#">К списку глав</a></div>`;
-    stage.innerHTML = `<div class="strip">` +
-      ch.pages.map((p, i) => `<img data-i="${i}" alt="Страница ${i + 1}" loading="lazy" decoding="async" src="${pageSrc(ch, i)}" onload="this.classList.add('ok')">`).join('') +
-      end + `</div>`;
-    const imgs = [...stage.querySelectorAll('img[data-i]')];
+  /* зум пальцами — выключаем свайпы, пока страница увеличена */
+  const vv = window.visualViewport;
+  if(vv) vv.addEventListener('resize', () => reader.classList.toggle('zoomed', vv.scale > 1.02), {signal});
 
-    R.show = (i, jump) => {
-      R.idx = i;
-      if(jump !== false){
-        imgs[i].loading = 'eager';
-        imgs[i].scrollIntoView({block:'start'});
-        stage.scrollTop -= 56;
+  /* поворот экрана / изменение ширины окна */
+  let lastW = innerWidth, resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if(innerWidth !== lastW){ lastW = innerWidth; R?.onResize?.(); }
+    }, 150);
+  }, {signal});
+
+  /* ===== режим «по страницам» ===== */
+  function mountPage(ms){
+    stage.innerHTML = `<div class="pager" id="pager"></div>` +
+      (finePointer ? `<div class="edge l" aria-hidden="true">${I.back}</div><div class="edge r" aria-hidden="true">${I.next}</div>` : '');
+    const pager = $('pager');
+    const cache = new Map();
+    let token = 0, cur = null, lastDrag = 0;
+
+    const load = i => {
+      if(!cache.has(i)){
+        const p = loadImg(pageSrc(ch, i));
+        p.catch(() => { if(cache.get(i) === p) cache.delete(i); });
+        cache.set(i, p);
       }
-      updateChrome(i);
+      return cache.get(i);
     };
 
-    // track current page while scrolling
-    let lastY = 0, ticking = false;
-    stage.addEventListener('scroll', () => {
-      if(ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        const y = stage.scrollTop;
-        if(y > lastY + 12) toggleUI(true);
-        else if(y < lastY - 12) toggleUI(false);
-        lastY = y;
-        const mid = window.innerHeight * 0.4;
-        let cur = R.idx;
-        for(const im of imgs){
-          const r = im.getBoundingClientRect();
-          if(r.top <= mid && r.bottom > mid){ cur = +im.dataset.i; break; }
+    function show(i, {dir = 0, fromEnd = false} = {}){
+      i = clamp(i, 0, total - 1);
+      const my = ++token;
+      setPage(i);
+      reader.classList.add('busy');
+      load(i).then(im => {
+        if(my !== token || ms.aborted) return;
+        reader.classList.remove('busy');
+        im.getAnimations?.().forEach(a => a.cancel());
+        im.className = 'page'; im.alt = `Страница ${i + 1}`; im.draggable = false;
+        im.style.transform = ''; im.style.opacity = '';
+        pager.replaceChildren(im);
+        cur = im;
+        window.scrollTo(0, fromEnd && settings.fit === 'width' ? document.documentElement.scrollHeight : 0);
+        if(dir && !reduced){
+          im.animate([
+            {transform:`translate3d(${dir * 36}px,0,0)`, opacity:0},
+            {transform:'translate3d(0,0,0)', opacity:1}
+          ], {duration:220, easing:EASE});
         }
-        if(cur !== R.idx){ R.idx = cur; setHash(cur); updateChrome(cur); }
+      }, () => {
+        if(my !== token || ms.aborted) return;
+        reader.classList.remove('busy');
+        cur = null;
+        pager.innerHTML = `<div class="img-error">Не удалось загрузить страницу ${i + 1}.<br><button class="btn ghost" type="button" data-retry>Повторить</button></div>`;
       });
-    }, {passive:true});
+      // заранее грузим соседние страницы
+      for(const k of [i + 1, i + 2, i - 1]) if(k >= 0 && k < total) load(k).catch(() => {});
+      if(i >= total - 2 && R.nextCh) new Image().src = pageSrc(R.nextCh, 0);
+      for(const k of [...cache.keys()]) if(k < i - 3 || k > i + 4) cache.delete(k);
+    }
 
-    stage.addEventListener('click', (e) => { if(e.target.tagName === 'IMG') toggleUI(); });
-    leftBtn.onclick = () => R.idx > 0 ? R.show(R.idx - 1) : prev();
-    rightBtn.onclick = () => R.idx < total - 1 ? R.show(R.idx + 1) : next();
-    R.next = () => stage.scrollBy({top: window.innerHeight * 0.85, behavior:'smooth'});
-    R.prev = () => stage.scrollBy({top: -window.innerHeight * 0.85, behavior:'smooth'});
-    requestAnimationFrame(() => R.show(pageIdx));
+    const canGo = step => { const j = R.idx + step; return (j >= 0 && j < total) || !!(step > 0 ? R.nextCh : R.prevCh); };
+    function go(step, keepUI){
+      const j = R.idx + step;
+      if(j >= 0 && j < total){
+        if(!keepUI) hideUI();
+        show(j, {dir: step * (rtl() ? -1 : 1), fromEnd: step < 0});
+      } else toChapter(step);
+    }
+    // «Умное» листание: в режиме «по ширине» сначала докручивает страницу
+    function smart(step){
+      if(settings.fit === 'width'){
+        const max = document.documentElement.scrollHeight - innerHeight;
+        const behavior = reduced ? 'auto' : 'smooth';
+        if(step > 0 && scrollY < max - 40){ window.scrollBy({top: innerHeight * .85, behavior}); return; }
+        if(step < 0 && scrollY > 40){ window.scrollBy({top: -innerHeight * .85, behavior}); return; }
+      }
+      go(step);
+    }
+    const sideStep = side => side * (rtl() ? -1 : 1);   // side: -1 левый край, +1 правый
+
+    R.goto = i => show(i);
+    R.onLeft = keepUI => go(sideStep(-1), keepUI);
+    R.onRight = keepUI => go(sideStep(1), keepUI);
+    R.onKey = e => {
+      switch(e.key){
+        case 'ArrowRight': e.preventDefault(); R.onRight(); break;
+        case 'ArrowLeft':  e.preventDefault(); R.onLeft(); break;
+        case ' ':          e.preventDefault(); smart(e.shiftKey ? -1 : 1); break;
+        case 'PageDown':   e.preventDefault(); smart(1); break;
+        case 'PageUp':     e.preventDefault(); smart(-1); break;
+      }
+    };
+    R.onHover = (e, overBar) => {
+      const x = e.clientX / innerWidth;
+      reader.classList.toggle('hover-l', !overBar && x < .3);
+      reader.classList.toggle('hover-r', !overBar && x > .7);
+    };
+
+    // касания по краям и по центру
+    pager.addEventListener('click', e => {
+      if(e.target.closest('[data-retry]')){ cache.delete(R.idx); show(R.idx); return; }
+      if(performance.now() - lastDrag < 400) return;
+      const x = e.clientX / innerWidth;
+      if(x < .3) smart(sideStep(-1));
+      else if(x > .7) smart(sideStep(1));
+      else toggleUI();
+    }, {signal: ms});
+
+    // свайп: страница едет за пальцем
+    let t = null;
+    const snapBack = (im, from) => {
+      if(!im) return;
+      im.style.transform = '';
+      if(!reduced && from) im.animate([{transform:`translate3d(${from}px,0,0)`}, {transform:'translate3d(0,0,0)'}], {duration:220, easing:EASE});
+    };
+    pager.addEventListener('touchstart', e => {
+      if(e.touches.length !== 1 || reader.classList.contains('zoomed') || !cur){ t = null; return; }
+      const p = e.touches[0];
+      cur.getAnimations?.().forEach(a => a.finish());
+      t = {x:p.clientX, y:p.clientY, lock:null, dx:0, v:0, px:p.clientX, pt:performance.now()};
+    }, {signal: ms, passive:true});
+    pager.addEventListener('touchmove', e => {
+      if(!t) return;
+      if(e.touches.length !== 1){ if(t.lock === 'h') snapBack(cur, t.dx); t = null; return; }
+      const p = e.touches[0], dx = p.clientX - t.x, dy = p.clientY - t.y;
+      if(!t.lock){
+        if(dx * dx + dy * dy < 100) return;
+        t.lock = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v';
+      }
+      if(t.lock !== 'h' || !cur) return;
+      const now = performance.now();
+      if(now > t.pt) t.v = (p.clientX - t.px) / (now - t.pt);
+      t.px = p.clientX; t.pt = now;
+      const step = dx < 0 ? sideStep(1) : sideStep(-1);
+      t.dx = canGo(step) ? dx : dx * .25;
+      cur.style.transform = `translate3d(${t.dx}px,0,0)`;
+    }, {signal: ms, passive:true});
+    const end = () => {
+      if(!t) return;
+      const s = t; t = null;
+      if(s.lock !== 'h' || !cur) return;
+      lastDrag = performance.now();
+      const im = cur;
+      const step = s.dx < 0 ? sideStep(1) : sideStep(-1);
+      const fling = Math.abs(s.v) > .45 && Math.sign(s.v) === Math.sign(s.dx) && Math.abs(s.dx) > 25;
+      if(canGo(step) && (Math.abs(s.dx) > innerWidth * .2 || fling)){
+        if(reduced){ im.style.transform = ''; go(step); return; }
+        const a = im.animate([
+          {transform:`translate3d(${s.dx}px,0,0)`, opacity:1},
+          {transform:`translate3d(${Math.sign(s.dx) * innerWidth * .6}px,0,0)`, opacity:0}
+        ], {duration:160, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+        im.style.transform = '';
+        a.onfinish = () => { im.style.opacity = '0'; a.cancel(); if(!ms.aborted) go(step); };
+      } else snapBack(im, s.dx);
+    };
+    pager.addEventListener('touchend', end, {signal: ms});
+    pager.addEventListener('touchcancel', () => { if(t && t.lock === 'h') snapBack(cur, t.dx); t = null; }, {signal: ms});
+
+    window.scrollTo(0, 0);
+    show(R.idx);
+    // при открытии панели видны пару секунд, потом уходят, чтобы не закрывать страницу
+    const initHide = setTimeout(() => {
+      if(!pinned && !sheetOpen() && !reader.querySelector('.bar:hover')) hideUI();
+    }, 2500);
+    ms.addEventListener('abort', () => clearTimeout(initHide));
   }
 
-  /* ----- slider ----- */
-  slider.oninput = () => { pgLabel.textContent = `${slider.value} из ${total}`; };
-  slider.onchange = () => R.show(+slider.value - 1);
+  /* ===== режим «лентой» ===== */
+  async function probeRatio(i){
+    const key = 'reader-ar:' + ch.id;
+    const cached = store.get(key, null);
+    if(typeof cached === 'number' && cached > .2 && cached < 5) return cached;
+    try{
+      const im = await Promise.race([loadImg(pageSrc(ch, i)), new Promise((_, rej) => setTimeout(rej, 2500))]);
+      const r = im.naturalWidth / im.naturalHeight;
+      if(r > .2 && r < 5){ store.set(key, +r.toFixed(4)); return r; }
+    }catch{}
+    return .7;
+  }
 
-  /* ----- settings sheet ----- */
-  const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');
-  const openSheet = (open) => { sheet.hidden = scrim.hidden = !open; };
-  document.getElementById('setBtn').onclick = () => openSheet(true);
-  scrim.onclick = () => openSheet(false);
-  sheet.querySelectorAll('[data-only]').forEach(el => el.hidden = settings.mode !== el.dataset.only);
-  sheet.querySelectorAll('.seg').forEach(seg => {
-    const key = seg.dataset.key;
-    seg.querySelectorAll('button').forEach(b => {
-      b.setAttribute('aria-pressed', settings[key] === b.dataset.v);
-      b.onclick = () => {
-        if(settings[key] === b.dataset.v) return;
-        settings[key] = b.dataset.v; saveSettings();
-        if(key === 'fit'){
-          reader.classList.remove('fit-contain', 'fit-width');
-          reader.classList.add('fit-' + settings.fit);
-          seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
-        } else {
-          const keep = R.idx; R = null;
-          renderReader(app, ch.id, keep);
-          document.getElementById('sheet').hidden = document.getElementById('scrim').hidden = false;
-        }
-      };
-    });
-  });
+  async function mountStrip(ms){
+    stage.innerHTML = '';
+    reader.classList.add('busy');
+    const ratio = await probeRatio(R.idx);   // чтобы заглушки были нужной высоты и лента не прыгала
+    if(ms.aborted) return;
+    reader.classList.remove('busy');
 
-  /* ----- fullscreen ----- */
-  document.getElementById('fullBtn').onclick = toggleFull;
-  if(!document.documentElement.requestFullscreen) document.getElementById('fullBtn').hidden = true;
+    const endBlock = R.nextCh
+      ? `<div class="chapter-end">Конец главы «${escapeHtml(ch.title || ch.id)}»<br><a class="btn" href="${readHash(R.nextCh.id, 0)}">Читать «${escapeHtml(R.nextCh.title || R.nextCh.id)}»</a></div>`
+      : `<div class="chapter-end">Это последняя глава<br><a class="btn ghost" href="#">К списку глав</a></div>`;
+    stage.innerHTML = `<div class="strip" style="--ar:${ratio}">` +
+      ch.pages.map((p, i) => `<figure class="pg" data-i="${i}" data-n="${i + 1}"><img alt="Страница ${i + 1}" loading="lazy" decoding="async" src="${pageSrc(ch, i)}"></figure>`).join('') +
+      endBlock + `</div>`;
+    const figs = [...stage.querySelectorAll('.pg')];
+    let quietUntil = 0;
 
-  /* ----- keyboard ----- */
-  window.onkeydown = (e) => {
-    if(e.target.tagName === 'INPUT') return;
-    if(!sheet.hidden){ if(e.key === 'Escape') openSheet(false); return; }
-    const fwd = rtl ? 'ArrowLeft' : 'ArrowRight', back = rtl ? 'ArrowRight' : 'ArrowLeft';
-    if(e.key === fwd || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){ e.preventDefault(); R.next(); }
-    else if(e.key === back || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){ e.preventDefault(); R.prev(); }
-    else if(e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') toggleFull();
-    else if(e.key === 'Escape') location.hash = '#';
-  };
+    // когда картинка выше экрана догружается, компенсируем прокрутку — текст не уезжает
+    const onLoad = f => {
+      if(f.classList.contains('ok')) return;
+      const r0 = f.getBoundingClientRect();
+      f.classList.add('ok');
+      if(r0.top < 0){
+        const d = f.getBoundingClientRect().height - r0.height;
+        if(Math.abs(d) > .5) window.scrollBy(0, d);
+      }
+    };
+    const onErr = f => {
+      f.classList.add('err');
+      if(!f.querySelector('.pg-err')) f.insertAdjacentHTML('beforeend',
+        `<div class="pg-err">Страница ${+f.dataset.i + 1} не загрузилась<button class="btn ghost" type="button" data-retry>Повторить</button></div>`);
+    };
+    for(const f of figs){
+      const img = f.firstElementChild;
+      img.addEventListener('load', () => onLoad(f), {signal: ms});
+      img.addEventListener('error', () => onErr(f), {signal: ms});
+    }
+
+    function jump(i, smooth){
+      i = clamp(i, 0, total - 1);
+      for(let k = Math.max(0, i - 1); k <= Math.min(total - 1, i + 2); k++) figs[k].firstElementChild.loading = 'eager';
+      const off = uiHidden() ? 0 : topBar.offsetHeight;
+      const y = i === 0 ? 0 : figs[i].getBoundingClientRect().top + scrollY - off;
+      quietUntil = performance.now() + (smooth ? 800 : 200);
+      window.scrollTo({top: Math.max(0, y), behavior: smooth && !reduced ? 'smooth' : 'auto'});
+      setPage(i);
+    }
+    function step(dir){
+      const j = R.idx + dir;
+      // «назад», когда верх текущей страницы уже уехал, — сначала к её началу
+      if(dir < 0 && figs[R.idx].getBoundingClientRect().top < -40) return jump(R.idx, true);
+      if(j >= 0 && j < total) jump(j, true); else toChapter(dir);
+    }
+
+    // какая страница сейчас на экране
+    const io = new IntersectionObserver(entries => {
+      for(const e of entries){
+        if(!e.isIntersecting) continue;
+        const i = +e.target.dataset.i;
+        if(i !== R.idx) setPage(i);
+      }
+    }, {rootMargin:'-40% 0px -59% 0px'});
+    figs.forEach(f => io.observe(f));
+    ms.addEventListener('abort', () => io.disconnect());
+
+    // панели прячутся при прокрутке вниз и появляются при прокрутке вверх
+    let lastY = scrollY, acc = 0;
+    window.addEventListener('scroll', () => {
+      const y = scrollY, d = y - lastY; lastY = y;
+      if(performance.now() < quietUntil || sheetOpen()) return;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      if(y < 40 || y > max - 40){ showUI(); acc = 0; return; }
+      if(!d) return;
+      if((d > 0) !== (acc > 0)) acc = 0;
+      acc += d;
+      if(acc > 48) hideUI(); else if(acc < -48) showUI();
+    }, {signal: ms, passive:true});
+
+    stage.addEventListener('click', e => {
+      const retry = e.target.closest('[data-retry]');
+      if(retry){
+        const f = retry.closest('.pg');
+        f.classList.remove('err'); f.querySelector('.pg-err')?.remove();
+        f.firstElementChild.src = pageSrc(ch, +f.dataset.i) + '?r=' + Date.now();
+        return;
+      }
+      if(e.target.closest('.pg')) toggleUI();
+    }, {signal: ms});
+
+    R.goto = i => jump(i, false);
+    R.onLeft = () => step(-1);
+    R.onRight = () => step(1);
+    R.onKey = e => {
+      if(e.key === 'ArrowRight'){ e.preventDefault(); step(1); }
+      else if(e.key === 'ArrowLeft'){ e.preventDefault(); step(-1); }
+    };
+    R.onResize = () => jump(R.idx, false);
+
+    jump(R.idx, false);
+  }
+
+  function mount(mode){
+    modeCtrl?.abort();
+    modeCtrl = new AbortController();
+    reader.classList.remove('mode-page', 'mode-strip', 'hover-l', 'hover-r', 'busy', 'ui-hidden');
+    reader.classList.add('mode-' + mode);
+    R.onHover = null; R.onResize = null;
+    R.goto = R.onLeft = R.onRight = R.onKey = () => {};
+    applyDir();
+    if(mode === 'strip') mountStrip(modeCtrl.signal); else mountPage(modeCtrl.signal);
+  }
+
+  mount(settings.mode);
 }
 
-function toggleFull(){
-  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
-  else document.exitFullscreen?.();
-}
-
-/* ---------- boot ---------- */
+/* ---------- запуск ---------- */
 async function render(){
   const app = document.getElementById('app');
   if(!manifest){
@@ -509,7 +843,7 @@ async function render(){
       if(!res.ok) throw new Error(res.status);
       manifest = await res.json();
     }catch(e){
-      app.innerHTML = `<div class="empty">Не удалось загрузить <code>${MANIFEST_URL}</code>.<br>Проверь, что файл лежит в репозитории по этому пути и что в нём корректный JSON.</div>`;
+      app.innerHTML = `<div class="empty view">Не удалось загрузить <code>${MANIFEST_URL}</code>.<br>Проверь, что файл лежит в репозитории по этому пути и что в нём корректный JSON.</div>`;
       return;
     }
   }
