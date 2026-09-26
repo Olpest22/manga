@@ -1,0 +1,10 @@
+{
+  "title": "Моя манга",
+  "chapters": [
+    {
+      "id": "chapter-1",
+      "title": "Глава 1",
+      "pages": ["001.jpg", "002.jpg", "003.jpg"]
+    }
+  ]
+}

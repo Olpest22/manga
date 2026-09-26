@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Манга</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --fg:#ededed;
+    --line:#2a2a2a;
+    --dim:#8a8a8a;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+  body{
+    font-family: 'Georgia', 'Noto Serif', serif;
+    min-height:100%;
+  }
+  a{color:inherit;}
+
+  header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    padding:2rem 1.5rem 1rem;
+    border-bottom:1px solid var(--line);
+    max-width:900px;margin:0 auto;
+  }
+  header h1{
+    font-size:1.4rem;font-weight:400;letter-spacing:.02em;margin:0;
+  }
+  header .count{color:var(--dim);font-size:.85rem;font-family:sans-serif;}
+
+  #view{max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;}
+
+  /* chapter list */
+  ul.chapters{list-style:none;margin:0;padding:0;}
+  ul.chapters li{
+    border-bottom:1px solid var(--line);
+  }
+  ul.chapters a{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1.1rem .2rem;text-decoration:none;
+  }
+  ul.chapters a:hover{background:#141414;}
+  .ch-title{font-size:1.05rem;}
+  .ch-pages{color:var(--dim);font-size:.8rem;font-family:sans-serif;}
+
+  .empty{color:var(--dim);padding:3rem 0;text-align:center;font-family:sans-serif;font-size:.95rem;line-height:1.6;}
+
+  /* reader */
+  #reader{
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:1.5rem;
+  }
+  #reader img{
+    max-width:100%;
+    display:block;
+    margin-bottom:2px;
+    background:#111;
+  }
+  .reader-nav{
+    position:sticky;top:0;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:1rem;
+    background:var(--bg);
+    padding:.9rem 0;
+    border-bottom:1px solid var(--line);
+    max-width:900px;margin:0 auto;width:100%;
+    font-family:sans-serif;font-size:.85rem;
+    z-index:5;
+  }
+  .reader-nav button{
+    background:none;border:1px solid var(--line);color:var(--fg);
+    padding:.5rem .9rem;font-family:sans-serif;font-size:.85rem;cursor:pointer;
+  }
+  .reader-nav button:hover{border-color:var(--fg);}
+  .reader-nav button:disabled{opacity:.3;cursor:default;}
+  .page-indicator{color:var(--dim);}
+  .back-link{font-size:.85rem;text-decoration:none;color:var(--dim);}
+  .back-link:hover{color:var(--fg);}
+
+  footer{
+    text-align:center;color:var(--dim);font-family:sans-serif;
+    font-size:.75rem;padding:2rem 0 3rem;
+  }
+
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f7f6f3;--fg:#161616;--line:#ddd9d0;--dim:#8a8580;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const MANIFEST_URL = 'manga/manifest.json';
+
+function getRoute(){
+  const h = location.hash.slice(1);
+  if(!h) return {view:'list'};
+  const parts = h.split('/');
+  if(parts[0] === 'read') return {view:'read', chapter: parts[1], page: parseInt(parts[2]||'0',10)};
+  return {view:'list'};
+}
+
+async function loadManifest(){
+  const res = await fetch(MANIFEST_URL, {cache:'no-store'});
+  if(!res.ok) throw new Error('manifest not found');
+  return res.json();
+}
+
+function renderList(app, manifest){
+  const chapters = manifest.chapters || [];
+  document.title = manifest.title || 'Манга';
+
+  let body;
+  if(chapters.length === 0){
+    body = `<div class="empty">Глав пока нет.<br>Добавь папку с картинками и запись в manga/manifest.json.</div>`;
+  } else {
+    body = `<ul class="chapters">` + chapters.map(ch => `
+      <li>
+        <a href="#read/${encodeURIComponent(ch.id)}/0">
+          <span class="ch-title">${escapeHtml(ch.title || ch.id)}</span>
+          <span class="ch-pages">${(ch.pages||[]).length} стр.</span>
+        </a>
+      </li>
+    `).join('') + `</ul>`;
+  }
+
+  app.innerHTML = `
+    <header>
+      <h1>${escapeHtml(manifest.title || 'Манга')}</h1>
+      <span class="count">${chapters.length} ${pluralGlav(chapters.length)}</span>
+    </header>
+    <div id="view">${body}</div>
+    <footer>чёрно-белая читалка</footer>
+  `;
+}
+
+function renderReader(app, manifest, chapterId, pageIdx){
+  const chapters = manifest.chapters || [];
+  const chIndex = chapters.findIndex(c => c.id === chapterId);
+  const chapter = chapters[chIndex];
+
+  if(!chapter){
+    app.innerHTML = `<div id="view"><div class="empty">Глава не найдена.<br><a class="back-link" href="#">← к списку</a></div></div>`;
+    return;
+  }
+
+  const pages = chapter.pages || [];
+  pageIdx = Math.max(0, Math.min(pageIdx, pages.length - 1));
+  const src = `manga/${chapter.id}/${pages[pageIdx]}`;
+
+  const prevChapter = chapters[chIndex - 1];
+  const nextChapter = chapters[chIndex + 1];
+
+  const atFirst = pageIdx === 0;
+  const atLast = pageIdx === pages.length - 1;
+
+  app.innerHTML = `
+    <div class="reader-nav">
+      <a class="back-link" href="#">← главы</a>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <button id="prevBtn" ${atFirst && !prevChapter ? 'disabled' : ''}>‹</button>
+        <span class="page-indicator">${escapeHtml(chapter.title||chapter.id)} · ${pageIdx+1}/${pages.length}</span>
+        <button id="nextBtn" ${atLast && !nextChapter ? 'disabled' : ''}>›</button>
+      </div>
+    </div>
+    <div id="reader">
+      <img src="${src}" alt="Страница ${pageIdx+1}" id="pageImg">
+    </div>
+  `;
+
+  document.getElementById('prevBtn').onclick = () => {
+    if(!atFirst) location.hash = `#read/${chapterId}/${pageIdx-1}`;
+    else if(prevChapter) location.hash = `#read/${prevChapter.id}/${(prevChapter.pages.length-1)}`;
+  };
+  document.getElementById('nextBtn').onclick = () => {
+    if(!atLast) location.hash = `#read/${chapterId}/${pageIdx+1}`;
+    else if(nextChapter) location.hash = `#read/${nextChapter.id}/0`;
+  };
+
+  window.onkeydown = (e) => {
+    if(e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
+    if(e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+  };
+
+  // swipe support
+  let touchX = null;
+  const img = document.getElementById('pageImg');
+  img.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+  img.addEventListener('touchend', e => {
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(dx > 50) document.getElementById('prevBtn').click();
+    if(dx < -50) document.getElementById('nextBtn').click();
+    touchX = null;
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function pluralGlav(n){
+  const mod10 = n % 10, mod100 = n % 100;
+  if(mod10 === 1 && mod100 !== 11) return 'глава';
+  if([2,3,4].includes(mod10) && ![12,13,14].includes(mod100)) return 'главы';
+  return 'глав';
+}
+
+async function render(){
+  const app = document.getElementById('app');
+  let manifest;
+  try{
+    manifest = await loadManifest();
+  }catch(e){
+    app.innerHTML = `<div id="view"><div class="empty">Не удалось загрузить manga/manifest.json.<br>Проверь, что файл существует и корректный JSON.</div></div>`;
+    return;
+  }
+  const route = getRoute();
+  if(route.view === 'read'){
+    renderReader(app, manifest, route.chapter, route.page);
+    window.scrollTo(0,0);
+  } else {
+    renderList(app, manifest);
+    window.onkeydown = null;
+  }
+}
+
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>
