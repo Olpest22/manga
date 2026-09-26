@@ -62,8 +62,8 @@
   ol.chapters .n{color:var(--dim);font-variant-numeric:tabular-nums;font-size:.9rem;}
   ol.chapters .ct{font-weight:500;overflow-wrap:anywhere;}
   ol.chapters .cp{color:var(--dim);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap;}
-  ol.chapters .bar{grid-column:2 / 4;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
-  ol.chapters .bar i{display:block;height:100%;background:var(--accent);}
+  ol.chapters .progress{grid-column:2 / 4;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+  ol.chapters .progress i{display:block;height:100%;background:var(--accent);}
   @media (hover:hover){
     .continue:hover{border-color:#44444a;}
     ol.chapters a:hover .ct{color:#fff;}
@@ -353,7 +353,7 @@ function renderList(app){
           <span class="n">${i + 1}</span>
           <span class="ct">${escapeHtml(ch.title || ch.id)}</span>
           <span class="cp">${status}</span>
-          ${read > 0 ? `<span class="bar"><i style="width:${pct}%"></i></span>` : ''}
+          ${read > 0 ? `<span class="progress"><i style="width:${pct}%"></i></span>` : ''}
         </a></li>`;
       }).join('') + `</ol>`;
 
