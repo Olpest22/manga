@@ -317,6 +317,50 @@
   }
   .continue:focus-visible .play{filter:brightness(1.22) saturate(1.25);}
   .btn{color:#fff;}
+
+  /* ---------- том 2: стальной корпус, струны входят сверху и выходят снизу ---------- */
+  .vol-card .desc{white-space:pre-line;}
+  .strings.feeds{padding-bottom:1.9rem;}
+  .strings.feeds + .gbody{margin-top:0;}
+  .gbody.steel{
+    --rvc:#fbfbfc 0 1.2px,#c3c6cc 2.2px,#7b7f87 4px,#25272b 5.2px,transparent 5.8px;
+    padding:2.1rem 1.7rem;border-radius:14px;
+    background:
+      radial-gradient(circle at 15px 15px,var(--rvc)),
+      radial-gradient(circle at calc(100% - 15px) 15px,var(--rvc)),
+      radial-gradient(circle at 15px calc(100% - 15px),var(--rvc)),
+      radial-gradient(circle at calc(100% - 15px) calc(100% - 15px),var(--rvc)),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),
+      linear-gradient(165deg,#868a93 0%,#62666e 40%,#43464c 72%,#2c2e33 100%);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.55),inset 0 0 0 4px rgba(255,255,255,.26),0 18px 40px -14px rgba(0,0,0,.85);
+  }
+  .gbody.steel::before{background:linear-gradient(105deg,rgba(255,255,255,.2) 0,transparent 30%,transparent 72%,rgba(255,255,255,.07) 100%);}
+  .gbody > .pin{
+    position:absolute;left:0;right:0;height:22px;pointer-events:none;
+    --fc:#fbfbfc 0 1.3px,#bfc3ca 2.2px,#70747c 5px,#202226 6.3px,transparent 6.9px;
+    --seg:
+      linear-gradient(90deg,#3c3c40,#d6d6dc 45%,#66666c) 11% var(--sy)/5px 15px no-repeat,
+      linear-gradient(90deg,#3c3c40,#d0d0d6 45%,#66666c) 30% var(--sy)/4px 15px no-repeat,
+      linear-gradient(90deg,#3c3c40,#cacad0 45%,#66666c) 50% var(--sy)/3.2px 15px no-repeat,
+      linear-gradient(90deg,#3c3c40,#c4c4ca 45%,#66666c) 69% var(--sy)/2.4px 15px no-repeat,
+      linear-gradient(90deg,#3c3c40,#bebec4 45%,#66666c) 88% var(--sy)/1.6px 15px no-repeat;
+    --ferr:
+      radial-gradient(circle at calc((100% - 5px)*.11 + 2.5px) var(--fy),var(--fc)),
+      radial-gradient(circle at calc((100% - 4px)*.30 + 2px) var(--fy),var(--fc)),
+      radial-gradient(circle at calc((100% - 3.2px)*.50 + 1.6px) var(--fy),var(--fc)),
+      radial-gradient(circle at calc((100% - 2.4px)*.69 + 1.2px) var(--fy),var(--fc)),
+      radial-gradient(circle at calc((100% - 1.6px)*.88 + .8px) var(--fy),var(--fc));
+    background:var(--ferr),var(--seg);
+  }
+  .gbody > .pin.t{top:0;--sy:0;--fy:15px;}
+  .gbody > .pin.b{bottom:0;--sy:100%;--fy:7px;}
+  .gbody > .bolt{
+    position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;
+    background:radial-gradient(circle at 40% 35%,#f4f5f7,#a9adb5 45%,#4b4e55);
+    clip-path:polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%);
+  }
+  .gbody > .bolt.l{left:6px;}
+  .gbody > .bolt.r{right:6px;}
 </style>
 </head>
 <body>
@@ -411,7 +455,7 @@ function normalize(m){
     all.push(c); group.list.push(c);
   };
   (Array.isArray(m.volumes) ? m.volumes : []).forEach((v, vi) => {
-    const g = {title: v.title || `Том ${vi + 1}`, name: v.name || '', subtitle: v.subtitle || '', description: v.description || '', cover: v.cover || '', list: []};
+    const g = {title: v.title || `Том ${vi + 1}`, name: v.name || '', subtitle: v.subtitle || '', description: v.description || '', cover: v.cover || '', theme: v.theme || '', list: []};
     groups.push(g);
     (v.chapters || []).forEach(c => add(c, g));
   });
@@ -523,8 +567,11 @@ function renderList(app){
     ? `<div class="empty">Глав пока нет. Добавь картинки в <code>manga/</code> и запиши тома и главы в <code>manga/manifest.json</code>.</div>`
     : manifest.groups.map((g, gi) => {
         const head = g.title && !hasCard(g) ? `<div class="vol-head"><h2>${escapeHtml(g.title)}</h2><span>${g.list.length} ${plural(g.list.length, 'глава', 'главы', 'глав')}</span></div>` : '';
-        const body = hasCard(g) ? `<div class="gbody">${gi === 0 ? cont : ''}${volCard(g)}</div>` : '';
-        return body + `<div class="strings">${head}<ol class="chapters">` + g.list.map(chapterRow).join('') + `</ol></div>`;
+        const steel = g.theme === 'steel';
+        const bits = steel ? '<i class="pin t"></i><i class="pin b"></i><i class="bolt l"></i><i class="bolt r"></i>' : '';
+        const body = hasCard(g) ? `<div class="gbody${steel ? ' steel' : ''}">${bits}${gi === 0 ? cont : ''}${volCard(g)}</div>` : '';
+        const nx = manifest.groups[gi + 1];
+        return body + `<div class="strings${nx && hasCard(nx) ? ' feeds' : ''}">${head}<ol class="chapters">` + g.list.map(chapterRow).join('') + `</ol></div>`;
       }).join('');
 
   const volCount = manifest.groups.filter(g => g.title).length;
