@@ -15,7 +15,7 @@
     --fg:#ecebe8;
     --dim:#8d8d93;
     --line:#26262a;
-    --accent:#f2c14e;
+    --accent:#e3151c;
     --ease:cubic-bezier(.2,.7,.2,1);
     --safe-t:env(safe-area-inset-top,0px);
     --safe-b:env(safe-area-inset-bottom,0px);
@@ -67,6 +67,29 @@
   @media (hover:hover){
     .continue:hover{border-color:#44444a;}
     ol.chapters a:hover .ct{color:#fff;}
+  }
+  .vol-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:2.25rem 0 .6rem;}
+  .vol-head:first-of-type{margin-top:0;}
+  .vol-head h2{font-size:1.05rem;font-weight:650;margin:0;letter-spacing:-.005em;}
+  .vol-head span{color:var(--dim);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .vol-card{
+    display:flex;gap:1.5rem;align-items:center;
+    background:var(--panel-solid);border:1px solid var(--line);border-radius:18px;
+    padding:1rem;margin:0 0 1.5rem;
+  }
+  .vol-card img{
+    flex:none;width:clamp(110px,28vw,200px);aspect-ratio:2552/3510;height:auto;object-fit:cover;
+    border-radius:12px;background:#1b1b1e;display:block;
+  }
+  .vol-card .txt{min-width:0;}
+  .vol-card .ttl{font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.5rem,5.5vw,2.1rem);line-height:1.1;margin:0 0 .35rem;letter-spacing:.01em;font-weight:400;}
+  .vol-card .sub2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.05rem,3.6vw,1.4rem);line-height:1.3;margin:0 0 .85rem;}
+  .vol-card .desc{color:var(--fg);opacity:.85;font-size:.95rem;line-height:1.55;margin:0;}
+  .vol-card .meta{color:var(--dim);font-size:.85rem;margin:.9rem 0 0;font-variant-numeric:tabular-nums;}
+  .vol-sep{border:0;border-top:1px solid var(--line);margin:0 0 1.5rem;}
+  @media (max-width:480px){
+    .vol-card{flex-direction:column;align-items:stretch;gap:1rem;}
+    .vol-card img{width:min(60%,240px);margin:0 auto;}
   }
   .empty{color:var(--dim);padding:4rem 1.5rem;text-align:center;line-height:1.7;max-width:480px;margin:0 auto;}
   .empty code{color:var(--fg);}
@@ -211,6 +234,83 @@
     *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;transition-delay:0s !important;}
     .busy .spinner{animation-duration:1.6s !important;}
   }
+
+  /* ---------- гитара: красный корпус, струны, металл ---------- */
+  .gbody{
+    position:relative;z-index:1;padding:1.1rem 1.1rem 1.5rem;overflow:hidden;
+    border-radius:28px 28px 72px 28px;
+    background:
+      radial-gradient(120% 80% at 15% 0%,rgba(255,130,120,.5),transparent 55%),
+      linear-gradient(160deg,#dc151b 0%,#a30d14 55%,#5a050b 100%);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.55),inset 0 0 0 4px rgba(255,255,255,.2),0 18px 40px -14px rgba(220,20,30,.5);
+  }
+  .gbody::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:linear-gradient(115deg,rgba(255,255,255,.16) 0,rgba(255,255,255,0) 34%);}
+  .gbody > *{position:relative;z-index:1;}
+  .gbody .continue{margin-bottom:1.1rem;}
+  .gbody :focus-visible{outline-color:#fff;}
+  .gbody .vol-card{background:none;border:0;padding:.25rem;margin:0;}
+  .gbody .vol-card .ttl,.gbody .vol-card .sub2{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.35);}
+  .gbody .vol-card .desc{color:#fff;opacity:1;}
+  .gbody .vol-card .meta{color:rgba(255,255,255,.78);}
+
+  .cover{
+    flex:none;width:clamp(124px,30vw,222px);padding:0 10px;border-radius:8px;
+    background:
+      radial-gradient(circle at 5px 10%,#222 0 1.5px,#d2d2d8 2px 3.3px,transparent 3.7px),
+      radial-gradient(circle at 5px 90%,#222 0 1.5px,#d2d2d8 2px 3.3px,transparent 3.7px),
+      radial-gradient(circle at calc(100% - 5px) 10%,#222 0 1.5px,#d2d2d8 2px 3.3px,transparent 3.7px),
+      radial-gradient(circle at calc(100% - 5px) 90%,#222 0 1.5px,#d2d2d8 2px 3.3px,transparent 3.7px),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px),
+      linear-gradient(90deg,#4a4a4f 0,#e0e0e5 13%,#8a8a90 32%,#8a8a90 68%,#e0e0e5 87%,#4a4a4f 100%);
+    box-shadow:0 12px 26px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .cover img{width:100%;border-radius:3px;display:block;}
+  @media (max-width:480px){.cover{width:min(62%,250px);margin:0 auto;}}
+
+  .strings{position:relative;padding:1.6rem 0 .4rem;}
+  .strings::before{
+    content:'';position:absolute;left:0;right:0;top:-26px;bottom:0;pointer-events:none;
+    background:
+      linear-gradient(90deg,#3c3c40,#d6d6dc 45%,#66666c) 11% 0/5px 100% no-repeat,
+      linear-gradient(90deg,#3c3c40,#d0d0d6 45%,#66666c) 30% 0/4px 100% no-repeat,
+      linear-gradient(90deg,#3c3c40,#cacad0 45%,#66666c) 50% 0/3.2px 100% no-repeat,
+      linear-gradient(90deg,#3c3c40,#c4c4ca 45%,#66666c) 69% 0/2.4px 100% no-repeat,
+      linear-gradient(90deg,#3c3c40,#bebec4 45%,#66666c) 88% 0/1.6px 100% no-repeat;
+  }
+  .gbody + .strings{padding-top:2.2rem;}
+  .strings + .gbody,.strings + .strings{margin-top:2rem;}
+  .strings > .vol-head{position:relative;z-index:1;margin:0 0 .8rem;padding:.55rem .9rem;background:#000;border:1px solid #2e2e33;border-radius:12px;}
+  .strings ol.chapters{position:relative;z-index:1;display:grid;gap:.7rem;}
+  .strings ol.chapters li,.strings ol.chapters li:last-child{
+    border:1px solid #2e2e33;border-radius:14px;background:rgba(12,12,14,.95);
+    box-shadow:0 8px 16px -6px rgba(0,0,0,.8);
+  }
+  .strings ol.chapters a{padding:1rem 1rem;}
+  @media (hover:hover){.strings ol.chapters li:hover{border-color:var(--accent);}}
+
+  /* ---------- «Продолжить»: накладка с регулятором ---------- */
+  .continue{
+    position:relative;gap:1.1rem;padding:1.05rem 1.3rem 1.05rem 1.2rem;border-radius:16px;
+    border:1px solid rgba(255,255,255,.2);
+    background:
+      radial-gradient(circle at 11px 11px,#1a1a1c 0 1.4px,#cfcfd5 1.9px 3.2px,transparent 3.6px),
+      radial-gradient(circle at calc(100% - 11px) 11px,#1a1a1c 0 1.4px,#cfcfd5 1.9px 3.2px,transparent 3.6px),
+      radial-gradient(circle at 11px calc(100% - 11px),#1a1a1c 0 1.4px,#cfcfd5 1.9px 3.2px,transparent 3.6px),
+      radial-gradient(circle at calc(100% - 11px) calc(100% - 11px),#1a1a1c 0 1.4px,#cfcfd5 1.9px 3.2px,transparent 3.6px),
+      linear-gradient(135deg,rgba(255,255,255,.13),transparent 42%),
+      linear-gradient(160deg,#18181b,#09090b);
+    box-shadow:inset 0 0 0 3px #09090b,inset 0 0 0 4px rgba(255,255,255,.26),0 10px 22px -8px rgba(0,0,0,.75);
+  }
+  .continue .play{
+    width:52px;height:52px;margin-left:.35rem;color:#fff;
+    background:radial-gradient(circle at 35% 28%,#ff6d66,#e3151c 46%,#8a0910 100%);
+    box-shadow:0 0 0 3px #17171a,0 0 0 5px #d4d4da,0 0 0 6px #55555b,0 7px 12px rgba(0,0,0,.65);
+    transition:filter .15s;
+  }
+  .continue .t{color:#fff;}
+  @media (hover:hover){.continue:hover{border-color:rgba(255,255,255,.4);}.continue:hover .play{filter:brightness(1.15);}}
+  .btn{color:#fff;}
 </style>
 </head>
 <body>
@@ -273,8 +373,64 @@ function plural(n, one, few, many){
   return many;
 }
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const pageSrc = (ch, i) => `manga/${encodeURIComponent(ch.id)}/${encodeURIComponent(ch.pages[i])}`;
+const pageSrc = (ch, i) => `manga/${encodeURIComponent(ch.folder)}/${encodeURIComponent(ch.pages[i])}`;
 const readHash = (id, i) => `#read/${encodeURIComponent(id)}/${i}`;
+
+// "001-045" -> 001.jpg ... 045.jpg (нули спереди и расширение сохраняются; "001-045.png" — другое расширение)
+function expandPages(p){
+  const out = [];
+  (Array.isArray(p) ? p : p ? [p] : []).forEach(item => {
+    const name = String(item).trim();
+    const m = /^(\d+)\s*-\s*(\d+)(\.\w+)?$/.exec(name);
+    const a = m && +m[1], b = m && +m[2];
+    if(!m || a > b || b - a > 5000){ out.push(name); return; }   // обычное имя файла
+    for(let n = a; n <= b; n++) out.push(String(n).padStart(m[1].length, '0') + (m[3] || '.jpg'));
+  });
+  return out;
+}
+
+// Приводит manifest к плоскому списку глав (manifest.all) и группам-томам (manifest.groups).
+// Работает и со старым форматом (просто "chapters"), и с новым ("volumes" → "chapters").
+function normalize(m){
+  const all = [], groups = [], seen = new Set();
+  const add = (c, group) => {
+    if(!c || typeof c !== 'object') return;
+    c.folder = c.folder || c.id;
+    c.id = c.id || c.folder;
+    if(!c.id) return;
+    if(seen.has(c.id)) console.warn('manifest.json: повторяется id главы «' + c.id + '» — id должен быть уникальным');
+    seen.add(c.id);
+    c.pages = expandPages(c.pages);
+    c.volTitle = group.title;
+    all.push(c); group.list.push(c);
+  };
+  (Array.isArray(m.volumes) ? m.volumes : []).forEach((v, vi) => {
+    const g = {title: v.title || `Том ${vi + 1}`, name: v.name || '', subtitle: v.subtitle || '', description: v.description || '', cover: v.cover || '', list: []};
+    groups.push(g);
+    (v.chapters || []).forEach(c => add(c, g));
+  });
+  const loose = {title: null, list: []};            // главы без тома (старый формат)
+  (Array.isArray(m.chapters) ? m.chapters : []).forEach(c => add(c, loose));
+  if(loose.list.length) groups.push(loose);
+  m.all = all; m.groups = groups;
+  m.hasVolumes = groups.some(g => g.title);
+  return m;
+}
+const hasCard = g => !!(g.cover || g.description || g.subtitle || g.name);
+function volCard(g){
+  const chs = g.list.length, pages = g.list.reduce((a, c) => a + c.pages.length, 0);
+  const sub = g.subtitle || '';
+  return `<section class="vol-card">
+    ${g.cover ? `<div class="cover"><img src="${escapeHtml(g.cover)}" alt="${escapeHtml(g.title)}: обложка" decoding="async"></div>` : ''}
+    <div class="txt">
+      ${g.name ? `<h2 class="ttl">${escapeHtml(g.name)}</h2>` : ''}
+      ${sub ? `<p class="sub2">${escapeHtml(sub)}</p>` : ''}
+      ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ''}
+      <p class="meta">${chs} ${plural(chs, 'глава', 'главы', 'глав')} · ${pages} стр.</p>
+    </div>
+  </section>`;
+}
+const chLabel = ch => ch.volTitle ? `${ch.volTitle} · ${ch.title || ch.id}` : (ch.title || ch.id);
 
 function getRoute(){
   const parts = location.hash.slice(1).split('/');
@@ -327,41 +483,53 @@ function teardown(){
 /* ---------- список глав ---------- */
 function renderList(app){
   teardown();
-  const chapters = manifest.chapters || [];
+  const chapters = manifest.all;
   document.title = manifest.title || 'Манга';
 
   const last = store.get('reader-last', null);
   const lastCh = last && chapters.find(c => c.id === last.chapter);
-  const lastPage = lastCh ? clamp(last.page | 0, 0, lastCh.pages.length - 1) : 0;
+  const lastPage = lastCh && lastCh.pages.length ? clamp(last.page | 0, 0, lastCh.pages.length - 1) : 0;
   const cont = lastCh ? `
     <a class="continue" href="${readHash(lastCh.id, lastPage)}">
       <span class="play">${I.play}</span>
       <span><span class="t">Продолжить чтение</span><br>
-      <span class="s">${escapeHtml(lastCh.title || lastCh.id)}, страница ${lastPage + 1} из ${lastCh.pages.length}</span></span>
+      <span class="s">${escapeHtml(chLabel(lastCh))}, страница ${lastPage + 1} из ${lastCh.pages.length}</span></span>
     </a>` : '';
 
-  const list = chapters.length === 0
-    ? `<div class="empty">Глав пока нет. Добавь папку с картинками в <code>manga/</code> и запиши главу в <code>manga/manifest.json</code>.</div>`
-    : `<ol class="chapters">` + chapters.map((ch, i) => {
-        const total = (ch.pages || []).length;
-        const p = progress[ch.id];
-        const read = p ? Math.min(p.max + 1, total) : 0;
-        const pct = total ? Math.round(read / total * 100) : 0;
-        const status = read === 0 ? `${total} стр.` : read >= total ? 'Прочитано' : `${read} из ${total}`;
-        const start = p && read < total ? clamp(p.last, 0, total - 1) : 0;
-        return `<li><a href="${readHash(ch.id, start)}">
-          <span class="n">${i + 1}</span>
+  const contInBody = hasCard(manifest.groups[0] || {});   // «Продолжить» уезжает в красный корпус первого тома
+  let n = 0;   // сквозной номер главы через все тома
+  const chapterRow = ch => {
+    const total = ch.pages.length;
+    const p = progress[ch.id];
+    const read = p ? Math.min(p.max + 1, total) : 0;
+    const pct = total ? Math.round(read / total * 100) : 0;
+    const status = read === 0 ? `${total} стр.` : read >= total ? 'Прочитано' : `${read} из ${total}`;
+    const start = p && read < total ? clamp(p.last, 0, total - 1) : 0;
+    return `<li><a href="${readHash(ch.id, start)}">
+          <span class="n">${++n}</span>
           <span class="ct">${escapeHtml(ch.title || ch.id)}</span>
           <span class="cp">${status}</span>
           ${read > 0 ? `<span class="progress"><i style="width:${pct}%"></i></span>` : ''}
         </a></li>`;
-      }).join('') + `</ol>`;
+  };
+
+  const list = chapters.length === 0
+    ? `<div class="empty">Глав пока нет. Добавь картинки в <code>manga/</code> и запиши тома и главы в <code>manga/manifest.json</code>.</div>`
+    : manifest.groups.map((g, gi) => {
+        const head = g.title && !hasCard(g) ? `<div class="vol-head"><h2>${escapeHtml(g.title)}</h2><span>${g.list.length} ${plural(g.list.length, 'глава', 'главы', 'глав')}</span></div>` : '';
+        const body = hasCard(g) ? `<div class="gbody">${gi === 0 ? cont : ''}${volCard(g)}</div>` : '';
+        return body + `<div class="strings">${head}<ol class="chapters">` + g.list.map(chapterRow).join('') + `</ol></div>`;
+      }).join('');
+
+  const volCount = manifest.groups.filter(g => g.title).length;
+  const sub = (manifest.hasVolumes ? `${volCount} ${plural(volCount, 'том', 'тома', 'томов')} · ` : '')
+    + `${chapters.length} ${plural(chapters.length, 'глава', 'главы', 'глав')}`;
 
   app.innerHTML = `
     <div class="home view">
       <h1>${escapeHtml(manifest.title || 'Манга')}</h1>
-      <p class="sub">${chapters.length} ${plural(chapters.length, 'глава', 'главы', 'глав')}</p>
-      ${cont}
+      <p class="sub">${sub}</p>
+      ${contInBody ? '' : cont}
       ${list}
     </div>`;
   window.scrollTo(0, 0);
@@ -369,7 +537,7 @@ function renderList(app){
 
 /* ---------- читалка ---------- */
 function renderReader(app, chapterId, pageIdx){
-  const chapters = manifest.chapters || [];
+  const chapters = manifest.all;
   const chIndex = chapters.findIndex(c => c.id === chapterId);
   const ch = chapters[chIndex];
   if(!ch || !(ch.pages || []).length){
@@ -386,7 +554,7 @@ function renderReader(app, chapterId, pageIdx){
   teardown();
   readerCtrl = new AbortController();
   const signal = readerCtrl.signal;
-  document.title = `${ch.title || ch.id} · ${manifest.title || 'Манга'}`;
+  document.title = `${chLabel(ch)} · ${manifest.title || 'Манга'}`;
 
   const canFull = !!document.documentElement.requestFullscreen;
   app.innerHTML = `
@@ -395,7 +563,7 @@ function renderReader(app, chapterId, pageIdx){
       <header class="bar top" id="topBar"><div class="in">
         <a class="icon-btn" href="#" aria-label="К списку глав">${I.list}</a>
         <div class="where">
-          <div class="ch">${escapeHtml(ch.title || ch.id)}</div>
+          <div class="ch">${escapeHtml(chLabel(ch))}</div>
           <div class="pg" id="pgLabel"></div>
         </div>
         ${canFull ? `<button class="icon-btn" id="fullBtn" type="button" aria-label="Во весь экран">${I.full}</button>` : ''}
@@ -728,7 +896,7 @@ function renderReader(app, chapterId, pageIdx){
     reader.classList.remove('busy');
 
     const endBlock = R.nextCh
-      ? `<div class="chapter-end">Конец главы «${escapeHtml(ch.title || ch.id)}»<br><a class="btn" href="${readHash(R.nextCh.id, 0)}">Читать «${escapeHtml(R.nextCh.title || R.nextCh.id)}»</a></div>`
+      ? `<div class="chapter-end">Конец главы «${escapeHtml(ch.title || ch.id)}»<br><a class="btn" href="${readHash(R.nextCh.id, 0)}">Читать «${escapeHtml(R.nextCh.volTitle !== ch.volTitle ? chLabel(R.nextCh) : (R.nextCh.title || R.nextCh.id))}»</a></div>`
       : `<div class="chapter-end">Это последняя глава<br><a class="btn ghost" href="#">К списку глав</a></div>`;
     stage.innerHTML = `<div class="strip" style="--ar:${ratio}">` +
       ch.pages.map((p, i) => `<figure class="pg" data-i="${i}" data-n="${i + 1}"><img alt="Страница ${i + 1}" loading="lazy" decoding="async" src="${pageSrc(ch, i)}"></figure>`).join('') +
@@ -841,7 +1009,7 @@ async function render(){
     try{
       const res = await fetch(MANIFEST_URL, {cache:'no-store'});
       if(!res.ok) throw new Error(res.status);
-      manifest = await res.json();
+      manifest = normalize(await res.json());
     }catch(e){
       app.innerHTML = `<div class="empty view">Не удалось загрузить <code>${MANIFEST_URL}</code>.<br>Проверь, что файл лежит в репозитории по этому пути и что в нём корректный JSON.</div>`;
       return;
